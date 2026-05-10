@@ -34,3 +34,15 @@ SMTP_PASS=your_gmail_app_password
 ALERT_EMAIL=your_email@gmail.com
 PUBLIC_SITE_URL=https://your-render-url.onrender.com
 ```
+
+
+## Claude-Style Pro Upgrade
+This build adds:
+- Claude AI inspired admin command center
+- AI assistant style summary cards
+- Premium glassmorphism dashboard
+- Analytics snapshot charts
+- Live system badge
+- Improved hire request UI
+- Notification badge and toast alerts
+- Email alert support via Nodemailer

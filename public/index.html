@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Isaac — VFX & Lyrical Animation</title>
+<title>Isaac Portfolio Pro | VFX & Lyrical Animation Dashboard</title>
+<meta name="description" content="Isaac Portfolio Pro - VFX, lyrical animation, cinematic motion design, hire requests, analytics and premium admin dashboard."/>
+<meta name="keywords" content="Isaac portfolio, VFX artist, lyrical animation, Houdini artist, After Effects, motion graphics, portfolio dashboard"/>
+<meta name="author" content="Isaac Sweeton"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 :root {
@@ -560,6 +563,269 @@ footer::before{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;b
   .admin-nav{padding:1.2rem 1.5rem}
   .hero-counter{display:none}
 }
+
+/* ════════════════════════════════════
+   CLAUDE-STYLE PRO DASHBOARD UPGRADE
+   ════════════════════════════════════ */
+:root{
+  --claude-bg:#0b0a08;
+  --claude-panel:rgba(23,21,18,.82);
+  --claude-card:rgba(32,29,25,.86);
+  --claude-border:rgba(255,255,255,.10);
+  --claude-soft:#d8cab8;
+  --claude-muted:#8f8374;
+  --claude-accent:#d97742;
+  --claude-accent2:#f2b06b;
+  --claude-green:#49d17d;
+  --claude-blue:#61a8ff;
+}
+
+.admin-page{
+  background:
+    radial-gradient(circle at 15% 10%, rgba(217,119,66,.18), transparent 34%),
+    radial-gradient(circle at 85% 15%, rgba(97,168,255,.14), transparent 32%),
+    linear-gradient(135deg,#080706,#10100e 55%,#070707);
+}
+.admin-nav{
+  background:rgba(14,13,11,.78);
+  backdrop-filter:blur(22px);
+  border-bottom:1px solid var(--claude-border);
+}
+.admin-nav-title{
+  color:var(--claude-soft);
+  text-shadow:none;
+}
+.admin-nav-sub{color:var(--claude-muted)}
+.admin-body{max-width:1280px}
+.admin-tabs{
+  background:rgba(255,255,255,.035);
+  padding:1rem;
+  border:1px solid var(--claude-border);
+  border-radius:24px;
+  backdrop-filter:blur(18px);
+}
+.admin-tab-btn{
+  border-radius:16px;
+  border:1px solid transparent;
+  background:transparent;
+  color:var(--claude-muted);
+}
+.admin-tab-btn:hover{
+  color:var(--claude-soft);
+  border-color:var(--claude-border);
+  background:rgba(255,255,255,.04);
+}
+.admin-tab-btn.active{
+  background:linear-gradient(135deg,rgba(217,119,66,.95),rgba(242,176,107,.9));
+  color:#111;
+  border-color:transparent;
+  box-shadow:0 12px 36px rgba(217,119,66,.22);
+}
+.add-project-section,.admin-card,.hire-card,.admin-kpi{
+  background:var(--claude-panel)!important;
+  border:1px solid var(--claude-border)!important;
+  border-radius:24px;
+  backdrop-filter:blur(22px);
+  box-shadow:0 24px 70px rgba(0,0,0,.34);
+}
+.add-project-section::before,.admin-card::before,.hire-card::before{
+  background:linear-gradient(180deg,var(--claude-accent),var(--claude-accent2))!important;
+}
+.add-title,.projects-section-title{color:var(--claude-soft)}
+.add-title span,.admin-card-meta,.hire-status,.admin-kpi-num{color:var(--claude-accent2)!important}
+.admin-input,.admin-select,.admin-textarea,.hire-input,.hire-select,.hire-textarea,.form-input{
+  border-radius:16px!important;
+  background:rgba(255,255,255,.045)!important;
+  border:1px solid var(--claude-border)!important;
+}
+.admin-input:focus,.admin-select:focus,.admin-textarea:focus,.hire-input:focus,.hire-select:focus,.hire-textarea:focus,.form-input:focus{
+  border-color:rgba(242,176,107,.55)!important;
+  box-shadow:0 0 0 4px rgba(217,119,66,.12)!important;
+}
+.add-btn,.hire-submit,.login-btn,.btn-primary{
+  border-radius:16px!important;
+  background:linear-gradient(135deg,var(--claude-accent),var(--claude-accent2))!important;
+  color:#111!important;
+}
+.mini-btn,.view-site-btn,.logout-btn,.modal-cancel,.modal-confirm{
+  border-radius:14px!important;
+}
+.admin-kpi-grid{
+  grid-template-columns:repeat(4,1fr)!important;
+}
+.admin-kpi{
+  padding:1.5rem!important;
+  overflow:hidden;
+}
+.admin-kpi::after{
+  content:'';
+  position:absolute;
+  width:120px;height:120px;
+  border-radius:50%;
+  right:-48px;top:-48px;
+  background:radial-gradient(circle,rgba(242,176,107,.22),transparent 65%);
+}
+.admin-kpi-num{font-size:3rem!important}
+.admin-kpi-label{color:var(--claude-muted)!important}
+.hire-card{
+  transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;
+}
+.hire-card:hover{
+  transform:translateY(-4px);
+  border-color:rgba(242,176,107,.35)!important;
+  box-shadow:0 28px 90px rgba(0,0,0,.45);
+}
+.hire-name{color:var(--claude-soft)!important}
+.hire-meta,.hire-message{color:var(--claude-muted)!important}
+.notif-badge{
+  background:linear-gradient(135deg,#ff4d6d,#ff9966)!important;
+  box-shadow:0 0 18px rgba(255,77,109,.45);
+}
+.admin-toast{
+  border-radius:18px;
+  background:rgba(24,22,19,.92)!important;
+  border:1px solid rgba(242,176,107,.28)!important;
+  backdrop-filter:blur(18px);
+}
+.claude-grid{
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:1.2rem;
+}
+.claude-assistant-card{
+  border:1px solid var(--claude-border);
+  background:linear-gradient(135deg,rgba(255,255,255,.055),rgba(255,255,255,.025));
+  border-radius:24px;
+  padding:1.4rem;
+  position:relative;
+  overflow:hidden;
+}
+.claude-assistant-card::before{
+  content:'';
+  position:absolute;
+  inset:-40%;
+  background:radial-gradient(circle at 20% 10%,rgba(217,119,66,.20),transparent 28%),
+             radial-gradient(circle at 80% 30%,rgba(97,168,255,.13),transparent 30%);
+  pointer-events:none;
+}
+.claude-ai-title{
+  position:relative;
+  font-family:'Bebas Neue',sans-serif;
+  letter-spacing:.08em;
+  font-size:1.7rem;
+  color:var(--claude-soft);
+  margin-bottom:.7rem;
+}
+.claude-ai-title span{color:var(--claude-accent2)}
+.claude-ai-chat{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:.75rem;
+}
+.ai-bubble{
+  max-width:92%;
+  padding:.9rem 1rem;
+  border-radius:18px;
+  font-size:.85rem;
+  line-height:1.6;
+  color:var(--claude-soft);
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--claude-border);
+}
+.ai-bubble.user{
+  align-self:flex-end;
+  background:rgba(217,119,66,.16);
+  border-color:rgba(217,119,66,.25);
+}
+.ai-actions{
+  position:relative;
+  display:flex;
+  flex-wrap:wrap;
+  gap:.55rem;
+  margin-top:1rem;
+}
+.ai-chip{
+  border:1px solid var(--claude-border);
+  background:rgba(255,255,255,.04);
+  color:var(--claude-muted);
+  font-family:'JetBrains Mono',monospace;
+  font-size:.58rem;
+  letter-spacing:.08em;
+  padding:.45rem .7rem;
+  border-radius:999px;
+  cursor:none;
+  transition:all .25s ease;
+}
+.ai-chip:hover{
+  color:var(--claude-accent2);
+  border-color:rgba(242,176,107,.35);
+  transform:translateY(-2px);
+}
+.analytics-mini-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:1rem;
+}
+.analytics-card{
+  border:1px solid var(--claude-border);
+  background:rgba(255,255,255,.035);
+  border-radius:20px;
+  padding:1rem;
+}
+.analytics-title{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.62rem;
+  color:var(--claude-muted);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  margin-bottom:.7rem;
+}
+.mini-chart{
+  height:82px;
+  display:flex;
+  align-items:flex-end;
+  gap:.35rem;
+}
+.mini-chart span{
+  flex:1;
+  min-width:8px;
+  border-radius:999px 999px 0 0;
+  background:linear-gradient(180deg,var(--claude-accent2),var(--claude-accent));
+  box-shadow:0 0 18px rgba(217,119,66,.18);
+  animation:barRise .8s ease both;
+}
+@keyframes barRise{from{height:5%!important;opacity:.2}to{opacity:1}}
+.live-dot{
+  display:inline-block;
+  width:8px;height:8px;
+  border-radius:50%;
+  background:var(--claude-green);
+  box-shadow:0 0 14px var(--claude-green);
+  animation:viewDotPulse 1.4s infinite;
+}
+.status-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+  border:1px solid rgba(73,209,125,.25);
+  color:var(--claude-green);
+  background:rgba(73,209,125,.07);
+  border-radius:999px;
+  padding:.28rem .65rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.58rem;
+  letter-spacing:.08em;
+}
+@media(max-width:980px){
+  .admin-kpi-grid{grid-template-columns:1fr 1fr!important}
+  .claude-grid{grid-template-columns:1fr}
+  .analytics-mini-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .admin-kpi-grid{grid-template-columns:1fr!important}
+}
+
 </style>
 </head>
 <body>
@@ -2615,6 +2881,7 @@ window.addEventListener('load', function() {
   document.head.appendChild(style);
 
   let hireRequestsCache = [];
+  window.hireRequestsCache = hireRequestsCache;
   let lastUnreadCount = 0;
 
   function ensureHireDashboard(){
@@ -2694,6 +2961,7 @@ window.addEventListener('load', function() {
     if (list) list.innerHTML = '<div class="admin-empty"><p>Loading hire requests...</p></div>';
     try {
       hireRequestsCache = await api('/api/hire', { auth: true });
+      window.hireRequestsCache = hireRequestsCache;
       renderHireRequests();
       updateHireBadge();
     } catch(e) {
@@ -2741,6 +3009,7 @@ window.addEventListener('load', function() {
     try {
       const updated = await api('/api/hire/' + id, { method:'PATCH', auth:true, body:JSON.stringify({ status }) });
       hireRequestsCache = hireRequestsCache.map(r => r._id === id ? updated : r);
+      window.hireRequestsCache = hireRequestsCache;
       renderHireRequests();
       updateHireBadge();
       toast('✓ Hire request updated');
@@ -2752,6 +3021,7 @@ window.addEventListener('load', function() {
     try {
       await api('/api/hire/' + id, { method:'DELETE', auth:true });
       hireRequestsCache = hireRequestsCache.filter(r => r._id !== id);
+      window.hireRequestsCache = hireRequestsCache;
       renderHireRequests();
       updateHireBadge();
       toast('🗑 Hire request deleted');
@@ -2790,6 +3060,163 @@ window.addEventListener('load', function() {
       const adminActive = document.getElementById('adminPage')?.classList.contains('active');
       if (adminActive && token && token()) loadHireRequests();
     }, 30000);
+  });
+})();
+</script>
+
+
+<script>
+/* ════════════════════════════════════
+   CLAUDE-STYLE DASHBOARD EXPERIENCE
+   ════════════════════════════════════ */
+(function(){
+  function safeNum(n){ return Number(n || 0).toLocaleString(); }
+
+  function ensureClaudeDashboard(){
+    const tabHire = document.getElementById('tabHire');
+    if(!tabHire || document.getElementById('claudeDashboardLayer')) return;
+
+    const layer = document.createElement('div');
+    layer.id = 'claudeDashboardLayer';
+    layer.innerHTML = `
+      <div class="add-project-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.2rem">
+          <div>
+            <div class="add-title" style="margin-bottom:.35rem">Claude-Style <span>Command Center</span></div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--claude-muted);letter-spacing:.08em">
+              Premium AI-inspired overview for clients, hire requests, visitors and files.
+            </div>
+          </div>
+          <div class="status-pill"><span class="live-dot"></span> LIVE SYSTEM</div>
+        </div>
+        <div class="claude-grid">
+          <div class="claude-assistant-card">
+            <div class="claude-ai-title">Isaac <span>AI Assistant</span></div>
+            <div class="claude-ai-chat" id="claudeAiChat">
+              <div class="ai-bubble">Welcome back, Isaac. I can summarize hire requests, suggest pricing, and help you reply to clients professionally.</div>
+              <div class="ai-bubble user">Show today's portfolio status.</div>
+              <div class="ai-bubble" id="aiSummaryBubble">Loading smart summary...</div>
+            </div>
+            <div class="ai-actions">
+              <button class="ai-chip" onclick="generateAiSummary()">Summarize Requests</button>
+              <button class="ai-chip" onclick="suggestClientReply()">Suggest Reply</button>
+              <button class="ai-chip" onclick="showPricingTip()">Pricing Tip</button>
+              <button class="ai-chip" onclick="showGrowthTip()">Growth Tip</button>
+            </div>
+          </div>
+          <div class="claude-assistant-card">
+            <div class="claude-ai-title">Analytics <span>Snapshot</span></div>
+            <div class="analytics-mini-grid">
+              <div class="analytics-card">
+                <div class="analytics-title">Visitors Trend</div>
+                <div class="mini-chart">
+                  <span style="height:35%"></span><span style="height:48%"></span><span style="height:42%"></span><span style="height:62%"></span><span style="height:58%"></span><span style="height:78%"></span><span style="height:90%"></span>
+                </div>
+              </div>
+              <div class="analytics-card">
+                <div class="analytics-title">Hire Conversion</div>
+                <div class="mini-chart">
+                  <span style="height:22%"></span><span style="height:31%"></span><span style="height:28%"></span><span style="height:44%"></span><span style="height:52%"></span><span style="height:68%"></span><span style="height:75%"></span>
+                </div>
+              </div>
+              <div class="analytics-card">
+                <div class="analytics-title">Fast Actions</div>
+                <div style="display:flex;flex-direction:column;gap:.55rem">
+                  <button class="mini-btn" onclick="loadHireRequests()">↻ Refresh Requests</button>
+                  <button class="mini-btn" onclick="markAllHireRead()">✓ Clear Notifications</button>
+                  <button class="mini-btn" onclick="document.getElementById('tabProjects') && document.querySelector('.admin-tab-btn')?.click()">＋ Manage Projects</button>
+                </div>
+              </div>
+              <div class="analytics-card">
+                <div class="analytics-title">File Upload System</div>
+                <div style="font-size:.82rem;color:var(--claude-muted);line-height:1.7">
+                  Current: Base64 media upload<br>
+                  Next: Cloudinary/S3 storage<br>
+                  Status: Ready to upgrade
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    tabHire.prepend(layer);
+    updateClaudeSummary();
+  }
+
+  function getHireCache(){
+    try { return window.hireRequestsCache || []; } catch { return []; }
+  }
+
+  window.generateAiSummary = function(){
+    const total = document.getElementById('kpiHireTotal')?.textContent || '0';
+    const unread = document.getElementById('kpiUnread')?.textContent || '0';
+    const projects = document.getElementById('kpiTotalProjects')?.textContent || '0';
+    const bubble = document.getElementById('aiSummaryBubble');
+    if(bubble){
+      bubble.textContent = `Smart summary: You currently have ${total} hire request(s), ${unread} new notification(s), and ${projects} portfolio project(s). Priority: reply to new requests first, then update project thumbnails for better conversion.`;
+    }
+  };
+
+  window.suggestClientReply = function(){
+    const bubble = document.getElementById('aiSummaryBubble');
+    if(bubble){
+      bubble.textContent = `Suggested reply: "Hi, thank you for reaching out. I checked your project details and I’m interested. Please share your deadline, reference style, and expected output format so I can send a clear quote."`;
+    }
+  };
+
+  window.showPricingTip = function(){
+    const bubble = document.getElementById('aiSummaryBubble');
+    if(bubble){
+      bubble.textContent = `Pricing tip: For lyrical animation, start with base pricing. Add extra charges for urgent delivery, 3D scenes, AI character work, VFX simulation, and revisions.`;
+    }
+  };
+
+  window.showGrowthTip = function(){
+    const bubble = document.getElementById('aiSummaryBubble');
+    if(bubble){
+      bubble.textContent = `Growth tip: Add 3 strong demo projects at the top: best VFX shot, best lyrical animation, and best client-style work. This improves trust fast.`;
+    }
+  };
+
+  function updateClaudeSummary(){
+    const bubble = document.getElementById('aiSummaryBubble');
+    const total = document.getElementById('kpiHireTotal')?.textContent || '0';
+    const unread = document.getElementById('kpiUnread')?.textContent || '0';
+    const projects = document.getElementById('kpiTotalProjects')?.textContent || '0';
+    if(bubble){
+      bubble.textContent = `Today: ${unread} new notification(s), ${total} total hire request(s), ${projects} project(s) in your portfolio. Dashboard is connected and ready.`;
+    }
+  }
+
+  const oldLoadHire = window.loadHireRequests;
+  if(oldLoadHire){
+    window.loadHireRequests = async function(){
+      const result = await oldLoadHire.apply(this, arguments);
+      setTimeout(()=>{ ensureClaudeDashboard(); updateClaudeSummary(); }, 300);
+      return result;
+    };
+  }
+
+  const oldSwitchTab = window.switchAdminTab;
+  if(oldSwitchTab){
+    window.switchAdminTab = function(tab, btn){
+      const r = oldSwitchTab.apply(this, arguments);
+      if(tab === 'hire') setTimeout(()=>{ ensureClaudeDashboard(); updateClaudeSummary(); }, 150);
+      return r;
+    };
+  }
+
+  const oldShowAdmin2 = window.showAdmin;
+  if(oldShowAdmin2){
+    window.showAdmin = showAdmin = function(){
+      const r = oldShowAdmin2.apply(this, arguments);
+      setTimeout(()=>{ ensureClaudeDashboard(); updateClaudeSummary(); }, 800);
+      return r;
+    };
+  }
+
+  window.addEventListener('load', ()=>{
+    setTimeout(()=>{ ensureClaudeDashboard(); updateClaudeSummary(); }, 1400);
   });
 })();
 </script>
