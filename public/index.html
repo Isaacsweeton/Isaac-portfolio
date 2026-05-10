@@ -2579,5 +2579,220 @@ window.addEventListener('load', function() {
   initViewCounter();
 });
 </script>
+
+<script>
+/* ════════════════════════════════════
+   PRO ADMIN UPGRADE: Hire Requests + Notifications
+   ════════════════════════════════════ */
+(function(){
+  const adminUpgradeCSS = `
+    .notif-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;margin-left:.45rem;border-radius:999px;background:var(--danger);color:#fff;font-size:.58rem;font-family:'JetBrains Mono',monospace;padding:0 .35rem}
+    .admin-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+    .admin-kpi{border:1px solid var(--border);background:var(--surface);padding:1.2rem;position:relative;overflow:hidden}
+    .admin-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+    .admin-kpi-num{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;color:var(--accent);line-height:1}
+    .admin-kpi-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:.35rem}
+    .hire-toolbar{display:flex;gap:.8rem;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap}
+    .hire-card{border:1px solid var(--border);background:var(--surface);padding:1.4rem;margin-bottom:1rem;position:relative;overflow:hidden;animation:cardIn .35s ease}
+    .hire-card.new{border-color:rgba(0,240,255,.35);box-shadow:0 0 0 1px rgba(0,240,255,.05)}
+    .hire-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--accent),var(--accent2))}
+    .hire-head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;margin-bottom:.8rem}
+    .hire-name{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800;color:var(--text)}
+    .hire-meta{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:.06em;margin-top:.25rem;line-height:1.6}
+    .hire-status{font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;padding:.25rem .55rem;border:1px solid var(--border);color:var(--accent);background:rgba(0,240,255,.04);white-space:nowrap}
+    .hire-message{font-size:.86rem;color:var(--muted);line-height:1.7;border-top:1px solid var(--border);padding-top:.8rem;margin-top:.8rem;white-space:pre-wrap}
+    .hire-actions{display:flex;gap:.55rem;flex-wrap:wrap;margin-top:1rem}
+    .mini-btn{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border);color:var(--muted);background:transparent;padding:.45rem .7rem;cursor:none;transition:all .25s}
+    .mini-btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+    .mini-btn.danger{border-color:rgba(255,68,85,.35);color:var(--danger)}
+    .mini-btn.danger:hover{background:rgba(255,68,85,.08)}
+    .admin-toast{position:fixed;right:2rem;bottom:6.5rem;z-index:9999;background:var(--surface);border:1px solid var(--border);padding:1rem 1.2rem;box-shadow:0 16px 40px rgba(0,0,0,.45);font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text);letter-spacing:.06em;display:none;max-width:320px}
+    .admin-toast.show{display:block;animation:fadeUp .35s ease}
+    @media(max-width:768px){.admin-kpi-grid{grid-template-columns:1fr}.hire-head{flex-direction:column}.admin-toast{left:1rem;right:1rem;bottom:5.5rem}}
+  `;
+  const style = document.createElement('style');
+  style.textContent = adminUpgradeCSS;
+  document.head.appendChild(style);
+
+  let hireRequestsCache = [];
+  let lastUnreadCount = 0;
+
+  function ensureHireDashboard(){
+    const tabs = document.querySelector('.admin-tabs');
+    const body = document.querySelector('.admin-body');
+    if (!tabs || !body || document.getElementById('tabHire')) return;
+
+    const btn = document.createElement('button');
+    btn.className = 'admin-tab-btn';
+    btn.id = 'hireTabBtn';
+    btn.innerHTML = '📨 Hire Requests <span class="notif-badge" id="hireBadge" style="display:none">0</span>';
+    btn.onclick = function(){ switchAdminTab('hire', this); loadHireRequests(); };
+    tabs.appendChild(btn);
+
+    const panel = document.createElement('div');
+    panel.id = 'tabHire';
+    panel.className = 'admin-tab-panel';
+    panel.style.display = 'none';
+    panel.innerHTML = `
+      <div class="add-project-section">
+        <div class="add-title">Admin <span>Dashboard</span></div>
+        <div class="admin-kpi-grid">
+          <div class="admin-kpi"><div class="admin-kpi-num" id="kpiTotalProjects">0</div><div class="admin-kpi-label">Total Projects</div></div>
+          <div class="admin-kpi"><div class="admin-kpi-num" id="kpiHireTotal">0</div><div class="admin-kpi-label">Hire Requests</div></div>
+          <div class="admin-kpi"><div class="admin-kpi-num" id="kpiUnread">0</div><div class="admin-kpi-label">New Notifications</div></div>
+        </div>
+      </div>
+      <div class="add-project-section">
+        <div class="add-title">Hire <span>Request Panel</span></div>
+        <div class="hire-toolbar">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted);letter-spacing:.08em">Incoming project requests from your portfolio form</div>
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+            <button class="mini-btn" onclick="loadHireRequests()">↻ Refresh</button>
+            <button class="mini-btn" onclick="markAllHireRead()">✓ Mark all read</button>
+          </div>
+        </div>
+        <div id="hireRequestsList">
+          <div class="admin-empty"><p>No hire requests yet.</p></div>
+        </div>
+      </div>`;
+    body.appendChild(panel);
+
+    const toast = document.createElement('div');
+    toast.id = 'adminToast';
+    toast.className = 'admin-toast';
+    document.body.appendChild(toast);
+  }
+
+  function toast(msg){
+    const el = document.getElementById('adminToast');
+    if(!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 3500);
+  }
+
+  function updateHireBadge(){
+    const unread = hireRequestsCache.filter(x => (x.status || 'new') === 'new').length;
+    const badge = document.getElementById('hireBadge');
+    const kpiUnread = document.getElementById('kpiUnread');
+    const kpiHireTotal = document.getElementById('kpiHireTotal');
+    const kpiTotalProjects = document.getElementById('kpiTotalProjects');
+    if (badge) {
+      badge.style.display = unread ? 'inline-flex' : 'none';
+      badge.textContent = unread;
+    }
+    if (kpiUnread) kpiUnread.textContent = unread;
+    if (kpiHireTotal) kpiHireTotal.textContent = hireRequestsCache.length;
+    if (kpiTotalProjects) kpiTotalProjects.textContent = (window.projects || projects || []).length;
+    if (unread > lastUnreadCount && lastUnreadCount !== 0) toast('🔔 New hire request received!');
+    lastUnreadCount = unread;
+  }
+
+  window.loadHireRequests = async function(){
+    ensureHireDashboard();
+    const list = document.getElementById('hireRequestsList');
+    if (list) list.innerHTML = '<div class="admin-empty"><p>Loading hire requests...</p></div>';
+    try {
+      hireRequestsCache = await api('/api/hire', { auth: true });
+      renderHireRequests();
+      updateHireBadge();
+    } catch(e) {
+      if (list) list.innerHTML = '<div class="admin-empty"><p>Could not load hire requests: '+ e.message +'</p></div>';
+    }
+  };
+
+  window.renderHireRequests = function(){
+    const list = document.getElementById('hireRequestsList');
+    if (!list) return;
+    if (!hireRequestsCache.length) {
+      list.innerHTML = '<div class="admin-empty"><p>No hire requests yet.</p></div>';
+      return;
+    }
+    list.innerHTML = hireRequestsCache.map(r => {
+      const status = r.status || 'new';
+      const date = new Date(r.createdAt || Date.now()).toLocaleString();
+      const safe = (v) => String(v || '').replace(/[<>&]/g, s => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[s]));
+      return `
+        <div class="hire-card ${status === 'new' ? 'new' : ''}">
+          <div class="hire-head">
+            <div>
+              <div class="hire-name">${safe(r.name)}</div>
+              <div class="hire-meta">
+                ✉ ${safe(r.email)}<br>
+                🎬 ${safe(r.service)} ${r.budget ? ' · 💰 ' + safe(r.budget) : ''}<br>
+                🕒 ${date}
+              </div>
+            </div>
+            <div class="hire-status">${safe(status)}</div>
+          </div>
+          <div class="hire-message">${safe(r.message)}</div>
+          <div class="hire-actions">
+            <a class="mini-btn" href="mailto:${encodeURIComponent(r.email)}?subject=${encodeURIComponent('Re: Your project request')}" style="text-decoration:none">Reply Email</a>
+            <button class="mini-btn" onclick="updateHireStatus('${r._id}','read')">Mark Read</button>
+            <button class="mini-btn" onclick="updateHireStatus('${r._id}','contacted')">Contacted</button>
+            <button class="mini-btn" onclick="updateHireStatus('${r._id}','closed')">Close</button>
+            <button class="mini-btn danger" onclick="deleteHireRequest('${r._id}')">Delete</button>
+          </div>
+        </div>`;
+    }).join('');
+  };
+
+  window.updateHireStatus = async function(id, status){
+    try {
+      const updated = await api('/api/hire/' + id, { method:'PATCH', auth:true, body:JSON.stringify({ status }) });
+      hireRequestsCache = hireRequestsCache.map(r => r._id === id ? updated : r);
+      renderHireRequests();
+      updateHireBadge();
+      toast('✓ Hire request updated');
+    } catch(e) { alert(e.message); }
+  };
+
+  window.deleteHireRequest = async function(id){
+    if(!confirm('Delete this hire request?')) return;
+    try {
+      await api('/api/hire/' + id, { method:'DELETE', auth:true });
+      hireRequestsCache = hireRequestsCache.filter(r => r._id !== id);
+      renderHireRequests();
+      updateHireBadge();
+      toast('🗑 Hire request deleted');
+    } catch(e) { alert(e.message); }
+  };
+
+  window.markAllHireRead = async function(){
+    const unread = hireRequestsCache.filter(r => (r.status || 'new') === 'new');
+    for (const r of unread) {
+      await api('/api/hire/' + r._id, { method:'PATCH', auth:true, body:JSON.stringify({ status:'read' }) });
+      r.status = 'read';
+    }
+    renderHireRequests();
+    updateHireBadge();
+    toast('✓ All notifications marked read');
+  };
+
+  const oldShowAdmin = window.showAdmin || showAdmin;
+  window.showAdmin = showAdmin = function(){
+    oldShowAdmin();
+    ensureHireDashboard();
+    loadHireRequests();
+    setTimeout(updateHireBadge, 500);
+  };
+
+  const oldRenderAdminList = window.renderAdminList || renderAdminList;
+  window.renderAdminList = renderAdminList = function(){
+    oldRenderAdminList();
+    setTimeout(updateHireBadge, 100);
+  };
+
+  window.addEventListener('load', function(){
+    ensureHireDashboard();
+    if (token && token()) loadHireRequests();
+    setInterval(() => {
+      const adminActive = document.getElementById('adminPage')?.classList.contains('active');
+      if (adminActive && token && token()) loadHireRequests();
+    }, 30000);
+  });
+})();
+</script>
+
 </body>
 </html>

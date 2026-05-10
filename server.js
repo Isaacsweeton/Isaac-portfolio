@@ -4,6 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -49,11 +50,12 @@ projectSchema.set('toJSON', {
 });
 
 const hireRequestSchema = new mongoose.Schema({
-  name: String,
-  email: String,
-  service: String,
-  budget: String,
-  message: String
+  name: { type: String, required: true, trim: true },
+  email: { type: String, required: true, trim: true },
+  service: { type: String, required: true, trim: true },
+  budget: { type: String, default: '', trim: true },
+  message: { type: String, required: true, trim: true },
+  status: { type: String, enum: ['new', 'read', 'contacted', 'closed'], default: 'new' }
 }, { timestamps: true });
 
 const counterSchema = new mongoose.Schema({
@@ -64,6 +66,50 @@ const counterSchema = new mongoose.Schema({
 const Project = mongoose.model('Project', projectSchema);
 const HireRequest = mongoose.model('HireRequest', hireRequestSchema);
 const Counter = mongoose.model('Counter', counterSchema);
+
+async function sendHireEmailAlert(hire) {
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, ALERT_EMAIL } = process.env;
+  if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS || !ALERT_EMAIL) {
+    console.log('ℹ️ Email alert skipped: SMTP variables not configured');
+    return;
+  }
+
+  const transporter = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: Number(SMTP_PORT),
+    secure: Number(SMTP_PORT) === 465,
+    auth: { user: SMTP_USER, pass: SMTP_PASS }
+  });
+
+  const safe = (value) => String(value || '').replace(/[<>]/g, '');
+  await transporter.sendMail({
+    from: `"Isaac Portfolio" <${SMTP_USER}>`,
+    to: ALERT_EMAIL,
+    replyTo: safe(hire.email),
+    subject: `New Hire Request: ${safe(hire.service)} — ${safe(hire.name)}`,
+    text:
+`New hire request from your portfolio website:
+
+Name: ${safe(hire.name)}
+Email: ${safe(hire.email)}
+Service: ${safe(hire.service)}
+Budget: ${safe(hire.budget) || 'Not provided'}
+
+Message:
+${safe(hire.message)}
+
+Open your admin dashboard:
+${process.env.PUBLIC_SITE_URL || ''}`,
+    html:
+`<h2>New Hire Request</h2>
+<p><b>Name:</b> ${safe(hire.name)}</p>
+<p><b>Email:</b> ${safe(hire.email)}</p>
+<p><b>Service:</b> ${safe(hire.service)}</p>
+<p><b>Budget:</b> ${safe(hire.budget) || 'Not provided'}</p>
+<p><b>Message:</b></p>
+<p>${safe(hire.message).replace(/\n/g, '<br>')}</p>`
+  });
+}
 
 function auth(req, res, next) {
   const header = req.headers.authorization || '';
@@ -143,12 +189,37 @@ app.post('/api/hire', async (req, res) => {
   const { name, email, service, message } = req.body;
   if (!name || !email || !service || !message) return res.status(400).json({ message: 'Missing required fields' });
   const saved = await HireRequest.create(req.body);
+  sendHireEmailAlert(saved).catch(err => console.error('Email alert error:', err.message));
   res.status(201).json({ ok: true, id: saved._id });
 });
 
 app.get('/api/hire', auth, async (_req, res) => {
   const requests = await HireRequest.find().sort({ createdAt: -1 });
   res.json(requests);
+});
+
+app.get('/api/hire/stats', auth, async (_req, res) => {
+  const [total, unread, contacted] = await Promise.all([
+    HireRequest.countDocuments(),
+    HireRequest.countDocuments({ status: 'new' }),
+    HireRequest.countDocuments({ status: 'contacted' })
+  ]);
+  res.json({ total, unread, contacted });
+});
+
+app.patch('/api/hire/:id', auth, async (req, res) => {
+  const allowed = ['new', 'read', 'contacted', 'closed'];
+  const status = req.body.status;
+  if (!allowed.includes(status)) return res.status(400).json({ message: 'Invalid status' });
+  const request = await HireRequest.findByIdAndUpdate(req.params.id, { status }, { new: true });
+  if (!request) return res.status(404).json({ message: 'Hire request not found' });
+  res.json(request);
+});
+
+app.delete('/api/hire/:id', auth, async (req, res) => {
+  const deleted = await HireRequest.findByIdAndDelete(req.params.id);
+  if (!deleted) return res.status(404).json({ message: 'Hire request not found' });
+  res.json({ ok: true });
 });
 
 app.post('/api/views', async (_req, res) => {
